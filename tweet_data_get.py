@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import config
-
 from requests_oauthlib import OAuth1Session
 
 CK = config.CONSUMER_KEY
@@ -15,7 +14,7 @@ twitter = OAuth1Session(CK, CS, AT, ATS)
 
 prefec = ['岩手', '北海道', '青森', '宮城', '秋田', '山形', '福島', '茨城', '栃木', '群馬', '埼玉', '千葉', '東京', '神奈川', '新潟', '富山', '石川', '福井',
           '山梨', '長野', '岐阜', '静岡', '愛知', '三重', '滋賀', '京都', '大阪', '兵庫', '奈良', '歌山', '鳥取', '島根', '岡山', '広島', '山口', '徳島',
-          '香川', '愛媛', '高知', '福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '児島', '沖縄']
+          '香川', '愛媛', '高知', '福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄']
 
 screen_name = 'zishin3255'
 url = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + screen_name
@@ -78,6 +77,7 @@ try:
     req = twitter.get(url, params=params)
 except:
     print('=========\nCheck Wi-Fi\n=========')
+#    send_alp('E')
     sys.exit()
 
 if req.status_code == 200:
@@ -85,7 +85,6 @@ if req.status_code == 200:
     logging.debug(timeline)
     for tweet in timeline:
         tw_txt = tweet['text']
-        # TODO 最終ツイとの比較処理
         if content == tw_txt:
             txt_file.write(tw_txt)
             print(tw_txt)
@@ -93,7 +92,6 @@ if req.status_code == 200:
             re_eq_level = re.compile('震度\s?(\d)')
             info_where = re_eq_where.search(tw_txt)
             info_level = re_eq_level.search(tw_txt)
-            # 震度の型チェックが必要
             # 震度の型チェックが必要
 
             # 緊急地震速報が含まれ、info_whereとinfo_levelがnot None
@@ -114,8 +112,10 @@ if req.status_code == 200:
                     print('Here')
                     try:
                         if info_level >= 3:
+#                            send_alp("M")
                             print('DANGER')
                         elif info_level < 3 and info_level >= 0:
+#                            send_alp('L')
                             print('ALEART')
                         else:
                             print('Check Earthquake Value')
@@ -131,10 +131,11 @@ if req.status_code == 200:
 
 else:
     logging.debug("ERROR: %d" % req.status_code)
-
+else:
+    logging.debug('ERROR ON COMMUNICATION')
 txt_file.close()
 
-txt_file = open(file_name)
-content = txt_file.read()
-txt_file.close()
-print(content)
+#txt_file = open(file_name)
+#content = txt_file.read()
+#txt_file.close()
+#print(content)
